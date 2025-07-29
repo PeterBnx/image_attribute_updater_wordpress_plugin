@@ -7,7 +7,7 @@
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Petros Binis
- * License:           GPL v2 or later
+ * License:           GPL v2
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  */
 
