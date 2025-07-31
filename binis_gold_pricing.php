@@ -89,6 +89,14 @@ function binis_gold_fields_html($post) {
         </select>
     </p>
     <?php
+    $discount = get_post_meta($post->ID, '_gold_discount', true);
+    ?>
+    <p>
+        <label>Έκπτωση (%):</label><br>
+        <input type="number" step="10" name="gold_discount" value="<?php echo esc_attr($discount); ?>">
+    </p>
+
+    <?php
 }
 
 add_action('save_post_product', function ($post_id) {
@@ -98,9 +106,12 @@ add_action('save_post_product', function ($post_id) {
     if (isset($_POST['gold_karat'])) {
         update_post_meta($post_id, '_gold_karat', sanitize_text_field($_POST['gold_karat']));
     }
+    if (isset($_POST['gold_discount'])) {
+    update_post_meta($post_id, '_gold_discount', floatval($_POST['gold_discount']));
+    }
 });
 
-/* Υπολογισμός Δυναμικής Τιμής */
+/* Dynamic Price Calculation */
 function binis_calculate_gold_price($price, $product) {
     $categories = get_option('gold_price_categories', []);
     if (empty($categories)) return $price;
@@ -108,6 +119,7 @@ function binis_calculate_gold_price($price, $product) {
 
     $weight = get_post_meta($product->get_id(), '_gold_weight', true);
     $karat  = get_post_meta($product->get_id(), '_gold_karat', true);
+    $discount = get_post_meta($product->get_id(), '_gold_discount', true);
 
     if (!$weight || !$karat) return $price;
 
@@ -121,8 +133,23 @@ function binis_calculate_gold_price($price, $product) {
         return $price;
     }
 
-    return round(floatval($weight) * floatval($gold_price), 2);
+    $base_price = round(floatval($weight) * floatval($gold_price), 2);
+
+    // Αν υπάρχει έκπτωση
+    if ($discount > 0) {
+        $discounted_price = round($base_price - ($base_price * ($discount / 100)), 2);
+
+        // Εμφάνιση έκπτωσης στο WooCommerce
+        $product->set_regular_price($base_price);
+        $product->set_sale_price($discounted_price);
+
+        return $discounted_price;
+    } else {
+        $product->set_regular_price($base_price);
+        return $base_price;
+    }
 }
+
 
 add_filter('woocommerce_product_get_price', 'binis_calculate_gold_price', 10, 2);
 add_filter('woocommerce_product_get_sale_price', 'binis_calculate_gold_price', 10, 2);
@@ -154,8 +181,16 @@ add_action('woocommerce_before_calculate_totals', function ($cart) {
         } else {
             continue;
         }
-
         $new_price = round(floatval($weight) * floatval($gold_price), 2);
-        $product->set_price($new_price);
+        $discount = get_post_meta($product->get_id(), '_gold_discount', true);
+        if ($discount > 0) {
+            $discounted = round($new_price - ($new_price * ($discount / 100)), 2);
+            $product->set_regular_price($new_price);
+            $product->set_sale_price($discounted);
+            $product->set_price($discounted);
+        } else {
+            $product->set_regular_price($new_price);
+            $product->set_price($new_price);
+        }
     }
 });
