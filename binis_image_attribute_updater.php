@@ -145,10 +145,10 @@ function binis_reset_all_image_fields() {
 }
 
 function binis_update_image_fields($attachment_id, $product_name, $store_name, $type_label) {
-    $alt_text = "$product_name - $type_label Image - $store_name";
+    $alt_text = "$product_name - $store_name";
     $title = "$product_name – $store_name";
-    $caption = "Φωτογραφία $product_name στο $store_name.";
-    $description = "High quality image of $product_name. Available for purchase from $store_name.";
+    $caption = "$product_name στο $store_name.";
+    $description = "Image of $product_name. Διαθέσιμο στο $store_name.";
 
     // Alt text
     update_post_meta($attachment_id, '_wp_attachment_image_alt', $alt_text);
