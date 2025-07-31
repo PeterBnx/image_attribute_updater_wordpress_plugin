@@ -18,14 +18,14 @@ function binis_gold_pricing_admin_page() {
     if (isset($_POST['binis_save_settings'])) {
         update_option('gold_price_9k', floatval($_POST['gold_price_9k']));
         update_option('gold_price_14k', floatval($_POST['gold_price_14k']));
-        update_option('gold_price_14k', floatval($_POST['gold_price_18k']));
+        update_option('gold_price_18k', floatval($_POST['gold_price_18k']));
         update_option('gold_price_categories', array_map('sanitize_text_field', $_POST['gold_price_categories'] ?? []));
         echo '<div class="updated"><p>Οι ρυθμίσεις αποθηκεύτηκαν!</p></div>';
     }
 
     $gold_9k = get_option('gold_price_9k', 0);
     $gold_14k = get_option('gold_price_14k', 0);
-    $gold_18k = update_option('gold_price_14k', floatval($_POST['gold_price_18k']));
+    $gold_18k = get_option('gold_price_18k', 0);
     $selected_cats = get_option('gold_price_categories', []);
 
     // Λίστα όλων των κατηγοριών WooCommerce
@@ -85,7 +85,7 @@ function binis_gold_fields_html($post) {
             <option value="">-- Επιλογή --</option>
             <option value="9" <?php selected($karat, '9'); ?>>9K</option>
             <option value="14" <?php selected($karat, '14'); ?>>14K</option>
-            <option value="18" <?php selected($karat, '18'); ?>>14K</option>
+            <option value="18" <?php selected($karat, '18'); ?>>18K</option>
         </select>
     </p>
     <?php
